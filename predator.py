@@ -28,8 +28,8 @@ print(f'''
 	''')  # The graphics are there
 
 
-useragents = requests.get(
-    "https://raw.githubusercontent.com/stamparm/blackhole/master/useragents.txt").text.split("\n")
+useragents = open('headers.txt', 'r+').read().splitlines()
+
 http_proxies = requests.get(
     "https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/http.txt").text.split("\n")
 socks4_proxy = requests.get(
