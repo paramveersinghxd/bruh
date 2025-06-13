@@ -31,11 +31,11 @@ print(f'''
 useragents = open('headers.txt', 'r+').readlines()
 
 http_proxies = get(
-    "https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/http.txt").text.split("\n")
+    "https://raw.githubusercontent.com/officialputuid/KangProxy/refs/heads/KangProxy/http/http.txt").text.split("\n")
 socks4_proxy = get(
-    "https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/socks4.txt").text.split("\n")
+    "https://raw.githubusercontent.com/officialputuid/KangProxy/refs/heads/KangProxy/socks4/socks4.txt").text.split("\n")
 socks5_proxy = get(
-    "https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/socks5.txt").text.split("\n")
+    "https://raw.githubusercontent.com/officialputuid/KangProxy/refs/heads/KangProxy/socks5/socks5.txt").text.split("\n")
 
 
 def Main_Menu():  # in This Function Septum The Url To Make It Usable For The FutureSetting Of HttpRequests
